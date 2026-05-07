@@ -17,5 +17,6 @@ router.post('/edit/:id', isAdmin, menuController.edit);
 // -- DELETE --
 router.post('/soft-delete/:id', isAdmin, menuController.softDelete);
 router.post('/hard-delete/:id', isAdmin, menuController.hardDelete);
+router.post('/undo-delete/:id', isAdmin, menuController.undoDelete);
 
 module.exports = router;

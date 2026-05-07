@@ -1,7 +1,7 @@
 {
-  "name": "tugasakhir-sbd-kel27",
+  "name": "testing-ta",
   "version": "1.0.0",
-  "description": "",
+  "description": "\"# testing-TA\"",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,9 +18,18 @@
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
-    "mysql2": "^3.22.2"
+    "mysql": "^2.18.1",
+    "mysql2": "^3.22.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kemalfikri-dev/testing-TA.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kemalfikri-dev/testing-TA/issues"
+  },
+  "homepage": "https://github.com/kemalfikri-dev/testing-TA#readme"
 }

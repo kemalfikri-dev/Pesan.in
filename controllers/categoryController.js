@@ -17,6 +17,8 @@ exports.index = async (req, res) => {
   }
 };
 
+
+
 // ── SHOW FORM CREATE ──
 exports.showCreate = (req, res) => {
   // render ke views/categories/create.ejs, kirim error: null

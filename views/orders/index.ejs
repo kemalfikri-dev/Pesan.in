@@ -4,70 +4,151 @@
   <meta charset="UTF-8">
   <title>Orders</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
   <%- include('../partials/navbar') %>
 
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between mb-3">
-      <h4>orders</h4>
-      <a href="/orders/create" class="btn btn-primary">+ Tambah Menu</a>
+  <div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <h3 class="fw-bold m-0"><i class="bi bi-cart-check text-success"></i> Daftar Pesanan</h3>
+        
+        <% if (user && user.role === 'admin') { %>
+          <button type="button" class="btn btn-outline-danger btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#trashModal">
+            <i class="bi bi-trash3"></i> Arsip Pesanan
+          </button>
+        <% } %>
+      </div>
+      
+      <% if (user && user.role !== 'admin') { %>
+        <a href="/orders/create" class="btn btn-success shadow-sm"><i class="bi bi-cart-plus"></i> Buat Pesanan</a>
+      <% } %>
     </div>
 
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Nama User</th>
-          <th>Menu</th>
-          <th>Quantity</th>
-          <th>Subtotal</th>
-          <th>Status</th>
-          <th>Tanggal</th>
-          <% if (user && user.role === 'admin') { %>
-          <th>Aksi</th>
-          <% } %>
-        </tr>
-      </thead>
-      <tbody>
-        <% orders.forEach((order, index) => { %>
-        <tr>
-          <td><%= index + 1 %></td>
-          <td><%= order.name %></td>
-          <td><%= order.menu_name %></td>   
-          <td><%= order.quantity %></td>    
-          <td>Rp <%= Number(order.subtotal).toLocaleString('id-ID') %></td> <!-- subtotal -->
-          <td><%= order.status %></td>     
-          <td><%= order.date %></td>  
-          <% if (user && user.role === 'admin') { %>     
-          <td>
-            <!-- Update status -->
-          <form action="/orders/update-status/<%= order.orders_id %>" method="POST" style="display:inline">
-            <select name="status">
-              <option>pending</option>
-              <option>paid</option>
-              <option>preparing</option>
-              <option>ready</option>
-              <option>cancel</option>
-            </select>
-            <button class="btn btn-primary btn-sm">Update</button>
-          </form>
+    <div class="table-container p-0">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th class="ps-4">No</th>
+            <th>Pelanggan</th>
+            <th>Menu</th>
+            <th class="text-center">Qty</th>
+            <th>Subtotal</th>
+            <th class="text-center">Status</th>
+            <th>Tanggal</th>
+            <% if (user && user.role === 'admin') { %>
+            <th class="text-center">Aksi</th>
+            <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach((order, index) => { %>
+          <tr>
+            <td class="ps-4 text-muted"><%= index + 1 %></td>
+            <td class="fw-semibold"><%= order.name %></td>
+            <td><%= order.menu_name %></td>   
+            <td class="text-center fw-bold"><%= order.quantity %></td>    
+            <td class="text-success fw-bold">Rp <%= Number(order.subtotal).toLocaleString('id-ID') %></td>
+            <td class="text-center">
+              <% 
+                let badgeClass = 'bg-secondary';
+                if(order.status === 'pending') badgeClass = 'bg-warning text-dark';
+                if(order.status === 'paid') badgeClass = 'bg-info text-dark';
+                if(order.status === 'preparing') badgeClass = 'bg-primary';
+                if(order.status === 'ready') badgeClass = 'bg-success';
+                if(order.status === 'cancel') badgeClass = 'bg-danger';
+              %>
+              <span class="badge <%= badgeClass %> px-3 py-2 rounded-pill text-uppercase" style="font-size: 0.75rem;"><%= order.status %></span>
+            </td>     
+            <td class="text-muted" style="font-size: 0.9rem;"><%= order.date %></td>  
+            
+            <% if (user && user.role === 'admin') { %>     
+            <td>
+              <div class="d-flex justify-content-center gap-1">
+                <form action="/orders/update-status/<%= order.orders_id %>" method="POST" class="d-flex gap-1 m-0">
+                  <select name="status" class="form-select form-select-sm shadow-none" style="width: auto;">
+                    <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Paid</option>
+                    <option value="preparing" <%= order.status === 'preparing' ? 'selected' : '' %>>Preparing</option>
+                    <option value="ready" <%= order.status === 'ready' ? 'selected' : '' %>>Ready</option>
+                    <option value="cancel" <%= order.status === 'cancel' ? 'selected' : '' %>>Cancel</option>
+                  </select>
+                  <button class="btn btn-outline-primary btn-sm" title="Update Status"><i class="bi bi-check2"></i></button>
+                </form>
 
-          <!-- Soft delete -->
-          <form action="/orders/soft-delete/<%= order.orders_id %>" method="POST" style="display:inline">
-            <button class="btn btn-secondary btn-sm">Arsip</button>
-          </form>
-
-          <!-- Hard delete -->
-          <form action="/orders/hard-delete/<%= order.orders_id %>" method="POST" style="display:inline">
-            <button class="btn btn-danger btn-sm">Hapus</button>
-          </form>
-          </td>
-          <% } %>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
+                <form action="/orders/soft-delete/<%= order.orders_id %>" method="POST" class="m-0">
+                  <button class="btn btn-outline-secondary btn-sm" title="Arsip"><i class="bi bi-archive"></i></button>
+                </form>
+              </div>
+            </td>
+            <% } %>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      
+      <% if (orders.length === 0) { %>
+        <div class="text-center py-5 text-muted">Belum ada pesanan saat ini.</div>
+      <% } %>
+    </div>
   </div>
+
+  <% if (user && user.role === 'admin') { %>
+  <div class="modal fade" id="trashModal" tabindex="-1" aria-labelledby="trashModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-header bg-danger text-white rounded-top-4 border-0">
+          <h5 class="modal-title" id="trashModalLabel"><i class="bi bi-trash3 me-2"></i> Keranjang Sampah (Arsip Pesanan)</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <table class="table table-hover mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th class="ps-4">Pelanggan</th>
+                <th>Menu</th>
+                <th class="text-center">Aksi Permanen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (typeof archiveorders !== 'undefined' && archiveorders.length > 0) { %>
+                <% archiveorders.forEach((order) => { %>
+                <tr>
+                  <td class="ps-4"><%= order.name %></td>
+                  <td><%= order.menu_name %></td>
+                  <td class="text-center">
+                    <div class="d-flex justify-content-center gap-2">
+                        <form action="/orders/undo-delete/<%= order.orders_id %>" method="POST" class="m-0">
+                          <button class="btn btn-success btn-sm shadow-sm">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Pulihkan
+                          </button>
+                        </form>
+                        <form action="/orders/hard-delete/<%= order.orders_id %>" method="POST" class="m-0">
+                          <button class="btn btn-danger btn-sm shadow-sm" onclick="return confirm('Hapus permanen pesanan ini? Tindakan tidak bisa dibatalkan.')">
+                            <i class="bi bi-x-octagon me-1"></i> Hapus Permanen
+                          </button>
+                        </form>
+                      </div>
+                  </td>
+                </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3" class="text-center py-4 text-muted">Tidak ada pesanan yang diarsipkan.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

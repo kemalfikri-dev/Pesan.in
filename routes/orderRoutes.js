@@ -7,8 +7,8 @@ const { isLogin, isAdmin } = require('../middleware/authMiddleware');
 router.get('/', isLogin, orderController.index);
 
 // -- CREATE -- 
-router.get('/create', isAdmin, orderController.showCreate);
-router.post('/create', isAdmin, orderController.create);
+router.get('/create', orderController.showCreate);
+router.post('/create', orderController.create);
 
 // -- EDIT --
 router.post('/update-status/:id', isAdmin, orderController.updateStatus);
